@@ -1,0 +1,29 @@
+name: Deploy HTML to AWS Lightsail
+
+on:
+  push:
+    branches:
+      - main  # Change this to your deployment branch if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Setup SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SECRETE }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Deploy Files to AWS
+      run: |
+        scp -r ./your-html-folder/* ubuntu@${{ secrets.AWS_HOST }}:/www/wwwroot/vescueye.work.gd
+
+    - name: Restart Apache (or Nginx)
+      run: |
+        ssh ubuntu@${{ secrets.AWS_HOST }} "sudo systemctl restart apache2"
