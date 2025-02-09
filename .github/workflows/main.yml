@@ -25,7 +25,7 @@ jobs:
 
     - name: Deploy Files to AWS (aaPanel)
       run: |
-        scp -r ./public/* root@${{ secrets.AWS_HOST }}:/www/wwwroot/vescueye.work.gd
+        scp -r scp -r ./* root@${{ secrets.AWS_HOST }}:/www/wwwroot/vescueye.work.gd
 
     - name: Restart Web Server (Apache or Nginx)
       run: |
