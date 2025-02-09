@@ -3,7 +3,7 @@ name: Deploy HTML to AWS Lightsail
 on:
   push:
     branches:
-      - main  # Change this to your deployment branch if needed
+      - main  # Change this if you use a different branch for deployment
 
 jobs:
   deploy:
@@ -16,14 +16,22 @@ jobs:
     - name: Setup SSH Key
       run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SECRETE }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.AWS_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.AWS_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Deploy Files to AWS
-      run: |
-        scp -r ./your-html-folder/* ubuntu@${{ secrets.AWS_HOST }}:/www/wwwroot/vescueye.work.gd
+        # Validate AWS_HOST secret
+        if [[ -z "${{ secrets.AWS_HOST }}" ]]; then
+          echo "Error: AWS_HOST is not set!" >&2
+          exit 1
+        fi
 
-    - name: Restart Apache (or Nginx)
+        # Add AWS Server to known hosts to avoid confirmation prompts
+        ssh-keyscan -H "${{ secrets.AWS_HOST }}" >> ~/.ssh/known_hosts
+
+    - name: Deploy Files to AWS (aaPanel)
       run: |
-        ssh ubuntu@${{ secrets.AWS_HOST }} "sudo systemctl restart apache2"
+        scp -r ./your-html-folder/* root@${{ secrets.AWS_HOST }}:/www/wwwroot/yourdomain.com
+
+    - name: Restart Web Server (Apache or Nginx)
+      run: |
+        ssh root@${{ secrets.AWS_HOST }} "sudo systemctl restart apache2 || sudo systemctl restart nginx"
