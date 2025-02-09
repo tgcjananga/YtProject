@@ -30,8 +30,8 @@ jobs:
 
     - name: Deploy Files to AWS (aaPanel)
       run: |
-        scp -r ./your-html-folder/* root@${{ secrets.AWS_HOST }}:/www/wwwroot/yourdomain.com
+        scp -r ./your-html-folder/* ubuntu@${{ secrets.AWS_HOST }}:/www/wwwroot/yourdomain.com
 
     - name: Restart Web Server (Apache or Nginx)
       run: |
-        ssh root@${{ secrets.AWS_HOST }} "sudo systemctl restart apache2 || sudo systemctl restart nginx"
+        ssh ubuntu@${{ secrets.AWS_HOST }} "sudo systemctl restart apache2 || sudo systemctl restart nginx"
